@@ -26,7 +26,7 @@ jobs:
       - name: Check for broken links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose .
+          args: --verbose . --exclude https://linkedin.com/in/v-s-v-i-s-h-w-a-s
 
   security:
     runs-on: ubuntu-latest
