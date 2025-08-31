@@ -1,111 +1,72 @@
-###############################################################
-# GitHub Actions Workflow: CI/CD Pipeline for Portfolio Website #
-#
-# This workflow automates the build, test, security, and static analysis
-# for the portfolio website. It runs on every push and pull request to main.
-# Each job is explained in detail below.
-###############################################################
-
-# Name of the workflow as shown in GitHub Actions UI
 name: CI/CD Pipeline
 
-# Workflow triggers: runs on push and pull requests to main branch
 on:
   push:
-    branches:
-      - main # Only run on pushes to main
-      - deploy
+    branches: [main]
   pull_request:
-    branches:
-      - main # Only run on PRs targeting main
+    branches: [main]
 
-# Jobs section: defines all the jobs in the workflow
 jobs:
   build:
-    # Build job: checks out code and validates HTML files
-    runs-on: ubuntu-latest # Use latest Ubuntu runner
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2 # Checks out repository code
+        uses: actions/checkout@v4
 
       - name: Validate HTML
         run: |
-          # Install tidy for HTML validation
           sudo apt-get update
           sudo apt-get install -y tidy
-          # Validate all HTML files, report errors but do not fail build
-          tidy -q -e index.html about.html projects.html experience.html education.html || true
-
+          tidy -e index.html || true
   test:
-    # Test job: runs after build, checks for broken links using Lychee
     runs-on: ubuntu-latest
-    needs: build # Depends on build job
+    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2 # Checks out repository code
-
-      - name: Run Lychee
-        uses: lycheeverse/lychee-action@v2 # Lychee checks for broken links
+      - uses: actions/checkout@v4
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose . --exclude https://linkedin.com/in/v-s-v-i-s-h-w-a-s
+          args: --verbose .
 
   security:
-    # Security job: runs after tests, scans for secrets using TruffleHog
     runs-on: ubuntu-latest
-    needs: test # Depends on test job
+    needs: test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2 # Checks out repository code
-
+      - uses: actions/checkout@v4
       - name: Secret Scan
-        uses: trufflesecurity/trufflehog@v3.63.3 # Scans for secrets in codebase
+        uses: trufflesecurity/trufflehog@v3.63.3
         with:
-          path: . # Scan entire repo
-          base: main # Compare against main branch
+          path: .
+          base: main
 
   static-analysis:
-    # Static analysis job: runs after security, lints CSS/JS and uploads reports
     runs-on: ubuntu-latest
-    needs: security # Depends on security job
+    needs: security
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2 # Checks out repository code
-
+      - uses: actions/checkout@v4
       - name: Lint CSS
         run: |
-          # Install Stylelint and config for CSS linting
           npm install -g stylelint stylelint-config-standard
-          # Lint all CSS files, do not fail build on errors
           npx stylelint "**/*.css" || true
-
-      - name: Lint JS
+      - name: Lint JavaScript
         run: |
-          # Ensure Node.js and npm are installed
-          sudo apt-get install -y node.js npm
-          # Install JSHint for JS linting
+          sudo apt-get install -y nodejs npm
           npm install -g jshint
-          # Lint all JS files, do not fail build on errors
-          jshint "**/*.js" || true
-
+          jshint **/*.js || true
       - name: Create reports directory
         run: |
-          # Create a directory for build and lint reports
           mkdir -p reports
-          echo "Build completed successfully" > reports/build.txt
-          echo "Linting completed successfully" > reports/lint.txt
-
-      - name: Upload reports
-        uses: actions/upload-artifact@v4 # Uploads build/lint reports as artifacts
+          echo "Build completed successfully" > reports/build-report.txt
+          echo "CSS and JS linting completed" > reports/lint-report.txt
+      - name: Upload reports artifact
+        uses: actions/upload-artifact@v4
         with:
           name: reports
           path: reports/
-
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-artifact@v4 # Uploads site files for deployment
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: my-portfolio # Upload only the site files directory
-
+          path: .
   deploy:
     runs-on: ubuntu-latest
     needs: static-analysis
@@ -117,13 +78,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Download GitHub Pages artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-
+        uses: actions/checkout@v4
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
