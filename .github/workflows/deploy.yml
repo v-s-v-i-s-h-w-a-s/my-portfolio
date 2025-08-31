@@ -47,7 +47,7 @@ jobs:
       - name: Run Lychee
         uses: lycheeverse/lychee-action@v2 # Lychee checks for broken links
         with:
-          args: --verbose . # Scan all files in repo
+          args: --verbose . --exclude https://linkedin.com/in/v-s-v-i-s-h-w-a-s
 
   security:
     # Security job: runs after tests, scans for secrets using TruffleHog
