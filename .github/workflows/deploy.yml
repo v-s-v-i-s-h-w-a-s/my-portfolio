@@ -95,12 +95,12 @@ jobs:
           echo "Linting completed successfully" > reports/lint.txt
 
       - name: Upload reports
-        uses: actions/upload-artifact@v3 # Uploads build/lint reports as artifacts
+        uses: actions/upload-artifact@v4 # Uploads build/lint reports as artifacts
         with:
           name: reports
           path: reports/
 
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-artifact@v2 # Uploads site files for deployment
+        uses: actions/upload-artifact@v4 # Uploads site files for deployment
         with:
           path: . # Upload all files in repo
