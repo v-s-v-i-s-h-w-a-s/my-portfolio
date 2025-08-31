@@ -1,4 +1,4 @@
-# V S Vishwas Portfolio Website
+# V S Vishwas Portfolio Webpage
 
 A **complete GitHub repository** for creating a professional student resume/portfolio website. Designed for learning **Git basics**, **GitHub-Jira integration**, and **GitHub Actions CI/CD pipeline**.
 
