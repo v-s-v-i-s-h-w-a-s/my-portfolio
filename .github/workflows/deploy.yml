@@ -104,7 +104,7 @@ jobs:
         uses: actions/upload-artifact@v4 # Uploads site files for deployment
         with:
           name: github-pages
-          path: . # Upload all files in repo
+          path: my-portfolio # Upload only the site files directory
 
   deploy:
     runs-on: ubuntu-latest
