@@ -95,7 +95,7 @@ jobs:
           echo "Linting completed successfully" > reports/lint.txt
 
       - name: Upload reports
-        uses: actions/upload-artifact@v2 # Uploads build/lint reports as artifacts
+        uses: actions/upload-artifact@v3 # Uploads build/lint reports as artifacts
         with:
           name: reports
           path: reports/
